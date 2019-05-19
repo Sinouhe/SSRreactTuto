@@ -1,13 +1,31 @@
-// start point for the client side app
+// Startup point for the client side application
+import 'babel-polyfill';
 import React from 'react';
-import ReactDom from 'react-dom';
+import ReactDOM from 'react-dom';
+import { BrowserRouter } from 'react-router-dom';
+import { createStore, applyMiddleware } from 'redux';
+import thunk from 'redux-thunk';
+import { Provider } from 'react-redux';
 import Routes from './Routes';
-import { BrowserRouter } from 'react-router-dom'
+import reducers from './reducers';
+import { renderRoutes } from 'react-router-config';
+import axios from 'axios';
 
+const axiosInstance = axios.create({
+  baseURL: '/api'
+});
 
-ReactDom.hydrate(
+const store = createStore(
+  reducers,
+  Window.INITIAL_STATE,
+  applyMiddleware(thunk.withExtraArgument(axiosInstance))
+);
+//<div>{renderRoutes(Routes)}</div>
+ReactDOM.hydrate(
+  <Provider store={store}>
     <BrowserRouter>
-        <Routes />
-    </BrowserRouter>, 
-    document.querySelector('#root')
+      <div>{renderRoutes(Routes)}</div>
+    </BrowserRouter>
+  </Provider>,
+  document.querySelector('#root')
 );
